@@ -69,6 +69,7 @@ const addConstructedMatchStat = async (
 };
 
 const insertArchetype = async (mysql: serverlessMysql.ServerlessMysql, archetypeName: string): Promise<number> => {
+	archetypeName = slugify(archetypeName);
 	const selectQuery = `
         SELECT id FROM constructed_archetypes WHERE archetype = ?
     `;
@@ -95,4 +96,27 @@ const insertArchetype = async (mysql: serverlessMysql.ServerlessMysql, archetype
 const buildNumericalRankValue = (rank: string): number => {
 	const [league, position] = rank.split('-');
 	return 10 * (parseInt(league) - 1) + parseInt(position);
+};
+
+const slugify = (name: string): string => {
+	return name
+		.toLowerCase()
+		.replace(/ /g, '-')
+		.replace(/'/g, '')
+		.replace(/\./g, '')
+		.replace(/\(/g, '')
+		.replace(/\)/g, '')
+		.replace(/:/g, '')
+		.replace(/!/g, '')
+		.replace(/,/g, '')
+		.replace(/;/g, '')
+		.replace(/"/g, '')
+		.replace(/’/g, '')
+		.replace(/&/g, '')
+		.replace(/%/g, '')
+		.replace(/@/g, '')
+		.replace(/#/g, '')
+		.replace(/\+/g, '')
+		.replace(/`/g, '')
+		.replace(/’/g, '');
 };
