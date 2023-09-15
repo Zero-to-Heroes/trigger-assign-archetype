@@ -15,7 +15,7 @@ export const handleArchetypeMessage = async (message: SqsInput): Promise<void> =
 };
 
 const isMessageValid = (message: SqsInput): boolean => {
-	return !!message.playerRank?.length;
+	return !!message.playerRank?.length && !!message.playerDecklist?.length;
 };
 
 const addConstructedMatchStat = async (
