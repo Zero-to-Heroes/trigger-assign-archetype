@@ -1,17 +1,17 @@
-import { getConnection } from '@firestone-hs/aws-lambda-utils';
 import serverlessMysql from 'serverless-mysql';
 import { SqsInput } from './sqs-input';
 
-export const handleArchetypeMessage = async (message: SqsInput): Promise<void> => {
+export const handleArchetypeMessage = async (
+	message: SqsInput,
+	mysql: serverlessMysql.ServerlessMysql,
+): Promise<void> => {
 	const isValid = isMessageValid(message);
 	if (!isValid) {
 		return;
 	}
 
-	const mysql = await getConnection();
 	const archetypeId = await insertArchetype(mysql, message.archetype);
 	await addConstructedMatchStat(mysql, message, archetypeId);
-	await mysql.end();
 };
 
 const isMessageValid = (message: SqsInput): boolean => {
@@ -24,7 +24,7 @@ const addConstructedMatchStat = async (
 	archetypeId: number,
 ): Promise<void> => {
 	const insertQuery = `
-		INSERT INTO constructed_match_stats
+		INSERT IGNORE INTO constructed_match_stats
 		(
 			creationDate,
 			buildNumber,

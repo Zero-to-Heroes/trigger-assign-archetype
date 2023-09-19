@@ -60,3 +60,4 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !GetAtt AssignArchetypeQueue.Arn
+                        BatchSize: 10
