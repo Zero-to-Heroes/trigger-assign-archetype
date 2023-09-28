@@ -1,4 +1,6 @@
+import { normalizeDeckList } from '@firestone-hs/reference-data';
 import serverlessMysql from 'serverless-mysql';
+import { allCards } from './process-assign-archetype';
 import { SqsInput } from './sqs-input';
 
 export const handleArchetypeMessage = async (
@@ -23,6 +25,7 @@ const addConstructedMatchStat = async (
 	message: SqsInput,
 	archetypeId: number,
 ): Promise<void> => {
+	const normalizedDecklist = normalizeDeckList(message.playerDecklist, allCards);
 	const insertQuery = `
 		INSERT IGNORE INTO constructed_match_stats
 		(
@@ -61,7 +64,7 @@ const addConstructedMatchStat = async (
 		message.opponentClass,
 		null,
 		message.result,
-		message.playerDecklist,
+		normalizedDecklist,
 		null,
 		null,
 		null,

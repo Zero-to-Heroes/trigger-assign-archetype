@@ -2,8 +2,11 @@
 // the more traditional callback-style handler.
 
 import { getConnection } from '@firestone-hs/aws-lambda-utils';
+import { AllCardsService } from '@firestone-hs/reference-data';
 import { handleArchetypeMessage } from './archetype-message-handler';
 import { SqsInput } from './sqs-input';
+
+export const allCards = new AllCardsService();
 
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
@@ -14,6 +17,7 @@ export default async (event): Promise<any> => {
 		.map((event) => event.Message)
 		.filter((msg) => msg)
 		.map((msg) => JSON.parse(msg));
+	await allCards.initializeCardsDb();
 	const mysql = await getConnection();
 	for (const message of messages) {
 		await handleArchetypeMessage(message, mysql);
