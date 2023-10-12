@@ -35,20 +35,6 @@ export class ReplayParser extends EventEmitter {
 			entities: {},
 		};
 
-		// const playerEntities = this.replay.replay
-		// 	.findall(`.//FullEntity`)
-		// 	.filter(fullEntity => fullEntity.find(`.Tag[@tag='${GameTag.CARDTYPE}'][@value='${CardType.HERO}']`))
-		// 	.filter(fullEntity => {
-		// 		const controllerId = parseInt(fullEntity.find(`.Tag[@tag='${GameTag.CONTROLLER}']`).get('value'));
-		// 		return controllerId === this.replay.mainPlayerId || controllerId === this.replay.opponentPlayerId;
-		// 	})
-		// 	.filter(
-		// 		fullEntity =>
-		// 			['TB_BaconShop_HERO_PH', 'TB_BaconShop_HERO_KelThuzad', 'TB_BaconShopBob'].indexOf(
-		// 				fullEntity.get('cardID'),
-		// 			) === -1,
-		// 	);
-
 		parseElement(
 			this.replay.replay.getroot(),
 			this.replay.mainPlayerId,

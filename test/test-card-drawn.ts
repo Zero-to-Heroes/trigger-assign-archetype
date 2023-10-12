@@ -1,20 +1,21 @@
 import { decode } from '@firestone-hs/deckstrings';
-import { Replay, parseHsReplayString } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
-import { CardAnalysis, MatchAnalysis } from 'src/model';
-import { allCards, s3 } from '../process-assign-archetype';
-import { SqsInput } from '../sqs-input';
-import { cardDrawn } from './parsers/cards-draw-parser';
-import { cardsInHand } from './parsers/cards-in-hand-parser';
-import { ReplayParser } from './replay-parser';
+import { AllCardsService } from '@firestone-hs/reference-data';
+import { loadReplay } from '../src/analysis/match-analysis';
+import { cardDrawn } from '../src/analysis/parsers/cards-draw-parser';
+import { cardsInHand } from '../src/analysis/parsers/cards-in-hand-parser';
+import { ReplayParser } from '../src/analysis/replay-parser';
+import { CardAnalysis, MatchAnalysis } from '../src/model';
 
-export const buildMatchAnalysis = async (message: SqsInput): Promise<MatchAnalysis> => {
-	const replay = await loadReplay(message.replayKey);
-	const analysis = analyzeReplay(replay, message.playerDecklist);
-	return analysis;
-};
+const test = async () => {
+	const replayKey = 'hearthstone/replay/2023/10/12/f5f5e67a-8885-4302-8294-a56b9708db8d.xml.zip';
+	const decklist = 'AAECAZ8FBIbiBKHiBISWBfboBQ3JoATXvQTavQS/4gTA4gSrkwWBlgWDlgXBxAXGxAWOlQa1ngaGowYAAA==';
 
-const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
+	const allCards = new AllCardsService();
+	await allCards.initializeCardsDb();
+
+	const replay = await loadReplay(replayKey);
 	const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
+
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
 	let cardsBeforeMulligan: string[] = [];
 	parser.on('cards-in-hand', (event) => {
@@ -29,10 +30,10 @@ const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
 	});
 	let cardsDrawn: { cardId: string; turn: number }[] = [];
 	parser.on('card-draw', (event) => {
-		// console.debug('card drawn', event.cardId);
 		cardsDrawn = [...cardsDrawn, { cardId: event.cardId, turn: event.turn }];
 	});
 	parser.parse();
+	console.debug('cardsBeforeMulligan', cardsBeforeMulligan);
 
 	const deckDefinition = decode(decklist);
 	// List of cards, ordered by id, including duplicates
@@ -40,12 +41,14 @@ const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
 		.flatMap((pair) => new Array(pair[1]).fill(allCards.getCard(pair[0]).id))
 		.sort();
 	const cardsAnalysis: readonly CardAnalysis[] = deckCards.map((cardId) => {
+		const debug = cardId === 'REV_952';
 		// Remove the info from cards after mulligan
 		const cardAfterMulligan = cardsAfterMulligan.find((c) => c.cardId === cardId);
 		if (cardAfterMulligan) {
 			cardsAfterMulligan = cardsAfterMulligan.filter((c) => c !== cardAfterMulligan);
 		}
 		const cardBeforeMulliganIdx = cardsBeforeMulligan.indexOf(cardId);
+		debug && console.log('cardBeforeMulliganIdx', cardBeforeMulliganIdx, cardsBeforeMulligan);
 		if (cardBeforeMulliganIdx !== -1) {
 			// Remove the info from cardsBeforeMulligan array, but be careful not to remove duplicates
 			cardsBeforeMulligan.splice(cardBeforeMulliganIdx, 1);
@@ -67,22 +70,6 @@ const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
 	const result: MatchAnalysis = {
 		cardsAnalysis: cardsAnalysis,
 	};
-	return result;
+	console.debug(result.cardsAnalysis.filter((c) => c.cardId === 'REV_952'));
 };
-
-export const loadReplay = async (replayKey: string): Promise<Replay> => {
-	const replayString = await loadReplayString(replayKey);
-	if (!replayString || replayString.length === 0) {
-		return null;
-	}
-	const replay: Replay = parseHsReplayString(replayString, allCards);
-	return replay;
-};
-
-const loadReplayString = async (replayKey: string): Promise<string> => {
-	if (!replayKey) {
-		return null;
-	}
-	const data = await s3.readZippedContent('xml.firestoneapp.com', replayKey);
-	return data;
-};
+test();

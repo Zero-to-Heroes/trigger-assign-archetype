@@ -43,8 +43,8 @@ Resources:
             Handler: process-assign-archetype.default
             Runtime: nodejs16.x
             CodeUri: ./dist/process-assign-archetype
-            Timeout: 60 # Because of BG games
-            MemorySize: 384 # Increase memory to be able to handle big games like BGS
+            Timeout: 120
+            MemorySize: 1024
             ReservedConcurrentExecutions: 10
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
@@ -60,4 +60,4 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !GetAtt AssignArchetypeQueue.Arn
-                        BatchSize: 10
+                        BatchSize: 1

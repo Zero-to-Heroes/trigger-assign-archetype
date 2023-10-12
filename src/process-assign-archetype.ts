@@ -18,7 +18,9 @@ export default async (event): Promise<any> => {
 		.map((event) => event.Message)
 		.filter((msg) => msg)
 		.map((msg) => JSON.parse(msg));
-	await allCards.initializeCardsDb();
+	if (!allCards.getCards()?.length) {
+		await allCards.initializeCardsDb();
+	}
 	const mysql = await getConnection();
 	for (const message of messages) {
 		await handleArchetypeMessage(message, mysql);

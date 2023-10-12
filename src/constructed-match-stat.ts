@@ -1,6 +1,7 @@
 import { normalizeDeckList } from '@firestone-hs/reference-data';
 import serverlessMysql from 'serverless-mysql';
-import { MatchAnalysis, buildMatchAnalysis } from './analysis/match-analysis';
+import { buildMatchAnalysis } from './analysis/match-analysis';
+import { MatchAnalysis } from './model';
 import { allCards } from './process-assign-archetype';
 import { SqsInput } from './sqs-input';
 
@@ -43,7 +44,7 @@ export const addConstructedMatchStat = async (
 	const playerRank = isLegend
 		? parseInt(message.playerRank.split('legend-')[1])
 		: buildNumericalRankValue(message.playerRank);
-	const result: any = await mysql.query(insertQuery, [
+	await mysql.query(insertQuery, [
 		message.creationDate,
 		message.buildNumber,
 		message.reviewId,

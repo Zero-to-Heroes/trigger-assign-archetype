@@ -28,7 +28,7 @@ const handleCardDraw = (
 		const isShowEntityInHand =
 			element.tag === 'ShowEntity' &&
 			parseInt(element.find(`Tag[@tag="${GameTag.ZONE}"]`)?.get('value') ?? '0') === Zone.HAND;
-		parseInt(element.get('tag')) === GameTag.ZONE && parseInt(element.get('value')) === Zone.HAND;
+		// parseInt(element.get('tag')) === GameTag.ZONE && parseInt(element.get('value')) === Zone.HAND;
 		if (isTagChangeToHand || isShowEntityInHand) {
 			const entity = structure.entities[element.get('entity')];
 			if (entity?.controller !== replay.mainPlayerId) {
