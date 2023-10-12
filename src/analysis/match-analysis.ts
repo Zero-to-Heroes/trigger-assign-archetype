@@ -13,7 +13,7 @@ export const buildMatchAnalysis = async (message: SqsInput): Promise<MatchAnalys
 	return analysis;
 };
 
-const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
+export const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
 	const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
 	let cardsBeforeMulligan: string[] = [];
