@@ -44,14 +44,17 @@ Resources:
             Runtime: nodejs16.x
             CodeUri: ./dist/process-assign-archetype
             Timeout: 120
-            MemorySize: 1024
+            MemorySize: 2048
             ReservedConcurrentExecutions: 10
+            Layers:
+                - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - SecretsManagerReadWrite
                 - AmazonSESFullAccess
                 - AmazonSQSFullAccess
                 - AmazonSNSFullAccess
+                - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
                 # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: process-assign-archetype
