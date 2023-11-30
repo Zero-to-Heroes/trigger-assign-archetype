@@ -44,7 +44,7 @@ Resources:
             Runtime: nodejs16.x
             CodeUri: ./dist/process-assign-archetype
             Timeout: 120
-            MemorySize: 2048
+            MemorySize: 4000
             ReservedConcurrentExecutions: 10
             Layers:
                 - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
