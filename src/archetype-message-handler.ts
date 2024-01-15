@@ -16,7 +16,7 @@ export const handleArchetypeMessage = async (
 };
 
 const isMessageValid = (message: SqsInput): boolean => {
-	return !!message.playerRank?.length && !!message.playerDecklist?.length;
+	return !!message.playerRank?.length && !!message.playerDecklist?.length && !!message.replayKey?.length;
 };
 
 const insertArchetype = async (mysql: serverlessMysql.ServerlessMysql, archetypeName: string): Promise<number> => {

@@ -1,7 +1,7 @@
 // This example demonstrates a NodeJS 8.10 async handler[1], however of course you could use
 // the more traditional callback-style handler.
 
-import { S3, getConnection, logBeforeTimeout } from '@firestone-hs/aws-lambda-utils';
+import { S3, getConnection } from '@firestone-hs/aws-lambda-utils';
 import { AllCardsService } from '@firestone-hs/reference-data';
 import { handleArchetypeMessage } from './archetype-message-handler';
 import { SqsInput } from './sqs-input';
@@ -11,7 +11,7 @@ export const s3 = new S3();
 
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event, context): Promise<any> => {
-	const cleanup = logBeforeTimeout(context);
+	// const cleanup = logBeforeTimeout(context);
 	const messages: readonly SqsInput[] = (event.Records as any[])
 		.map((event) => JSON.parse(event.body))
 		.reduce((a, b) => a.concat(b), [])
@@ -27,6 +27,6 @@ export default async (event, context): Promise<any> => {
 		await handleArchetypeMessage(message, mysql);
 	}
 	await mysql.end();
-	cleanup();
+	// cleanup();
 	return { statusCode: 200, body: null };
 };

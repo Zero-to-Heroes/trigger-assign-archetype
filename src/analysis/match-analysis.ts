@@ -71,18 +71,10 @@ export const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis =
 };
 
 export const loadReplay = async (replayKey: string): Promise<Replay> => {
-	const replayString = await loadReplayString(replayKey);
+	const replayString = await s3.loadReplayString(replayKey);
 	if (!replayString || replayString.length === 0) {
 		return null;
 	}
 	const replay: Replay = parseHsReplayString(replayString, allCards);
 	return replay;
-};
-
-const loadReplayString = async (replayKey: string): Promise<string> => {
-	if (!replayKey) {
-		return null;
-	}
-	const data = await s3.readZippedContent('xml.firestoneapp.com', replayKey);
-	return data;
 };
