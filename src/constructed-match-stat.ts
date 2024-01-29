@@ -62,6 +62,20 @@ export const addConstructedMatchStat = async (
 		null,
 		JSON.stringify(matchAnalysis),
 	]);
+
+	if (archetypeId > 0) {
+		// Also add a decklist/archetype mapping
+		const deckArchetypeQuery = `
+			INSERT IGNORE INTO constructed_deck_archetype
+			(
+				decklist,
+				archetypeId
+			)
+			VALUES
+			(?, ?)
+		`;
+		await mysql.query(deckArchetypeQuery, [normalizedDecklist, archetypeId]);
+	}
 };
 
 // 1 is Diamond 1, 50 is bronze 10
