@@ -40,9 +40,9 @@ Resources:
     ProcessAssignArchetypeFunction:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: process-assign-archetype.default
-            Runtime: nodejs16.x
-            CodeUri: ./dist/process-assign-archetype
+            Handler: assign-archetype/process-assign-archetype.default
+            Runtime: nodejs18.x
+            CodeUri: ./dist/assign-archetype/process-assign-archetype
             Timeout: 120
             MemorySize: 500
             ReservedConcurrentExecutions: 10

@@ -1,7 +1,7 @@
 import { normalizeDeckList } from '@firestone-hs/reference-data';
 import serverlessMysql from 'serverless-mysql';
+import { MatchAnalysis } from '../model';
 import { buildMatchAnalysis } from './analysis/match-analysis';
-import { MatchAnalysis } from './model';
 import { allCards } from './process-assign-archetype';
 import { SqsInput } from './sqs-input';
 
