@@ -68,13 +68,13 @@ export const addConstructedMatchStat = async (
 		const deckArchetypeQuery = `
 			INSERT IGNORE INTO constructed_deck_archetype
 			(
-				decklist,
+				deckstring,
 				archetypeId
 			)
 			VALUES
 			(?, ?)
 		`;
-		await mysql.query(deckArchetypeQuery, [normalizedDecklist, archetypeId]);
+		await mysql.query(deckArchetypeQuery, [normalizedDecklist.replaceAll('/', '-'), archetypeId]);
 	}
 };
 

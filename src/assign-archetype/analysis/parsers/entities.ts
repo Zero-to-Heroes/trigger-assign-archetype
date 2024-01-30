@@ -63,9 +63,6 @@ const parser = (structure: ParsingStructure) => {
 					element.find(`.Tag[@tag='${GameTag.TRANSFORMED_FROM_CARD}']`)?.get('value') || '0',
 				),
 			};
-			if (element.get('id') == '17') {
-				console.debug('show entity', element);
-			}
 		}
 		if (structure.entities[element.get('entity')]) {
 			if (parseInt(element.get('tag')) === GameTag.CONTROLLER) {
