@@ -45,7 +45,7 @@ Resources:
             CodeUri: ./dist/assign-archetype/process-assign-archetype
             Timeout: 120
             MemorySize: 500
-            ReservedConcurrentExecutions: 10
+            ReservedConcurrentExecutions: 30
             Layers:
                 - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:

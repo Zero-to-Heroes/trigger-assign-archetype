@@ -44,7 +44,7 @@ export const addConstructedMatchStat = async (
 	const playerRank = isLegend
 		? parseInt(message.playerRank.split('legend-')[1])
 		: buildNumericalRankValue(message.playerRank);
-	await mysql.query(insertQuery, [
+	const result = await mysql.query(insertQuery, [
 		message.creationDate,
 		message.buildNumber,
 		message.reviewId,
@@ -62,6 +62,7 @@ export const addConstructedMatchStat = async (
 		null,
 		JSON.stringify(matchAnalysis),
 	]);
+	// console.debug('running query', result, insertQuery, message.creationDate, message.reviewId);
 
 	if (archetypeId > 0) {
 		// Also add a decklist/archetype mapping
