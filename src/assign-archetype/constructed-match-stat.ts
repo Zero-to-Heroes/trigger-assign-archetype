@@ -1,7 +1,8 @@
 import { normalizeDeckList } from '@firestone-hs/reference-data';
+import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import serverlessMysql from 'serverless-mysql';
 import { MatchAnalysis } from '../model';
-import { buildMatchAnalysis } from './analysis/match-analysis';
+import { buildMatchAnalysis, loadMetaDataFile } from './analysis/match-analysis';
 import { allCards } from './process-assign-archetype';
 import { SqsInput } from './sqs-input';
 
@@ -9,14 +10,17 @@ export const addConstructedMatchStat = async (
 	mysql: serverlessMysql.ServerlessMysql,
 	message: SqsInput,
 	archetypeId: number,
-): Promise<void> => {
+): Promise<ReplayUploadMetadata> => {
+	const metadata = await loadMetaDataFile(message.metadataKey);
+
 	let matchAnalysis: MatchAnalysis = null;
 	try {
-		matchAnalysis = await buildMatchAnalysis(message);
+		matchAnalysis = await buildMatchAnalysis(message, metadata);
 	} catch (e) {
 		console.error('Could not build match analysis', e);
 	}
-	const normalizedDecklist = normalizeDeckList(message.playerDecklist, allCards);
+	const normalizedDecklist =
+		metadata?.game?.normalizedDeckstring ?? normalizeDeckList(message.playerDecklist, allCards);
 	const insertQuery = `
 		INSERT IGNORE INTO constructed_match_stats
 		(
@@ -77,6 +81,8 @@ export const addConstructedMatchStat = async (
 		`;
 		await mysql.query(deckArchetypeQuery, [normalizedDecklist.replaceAll('/', '-'), archetypeId]);
 	}
+
+	return metadata;
 };
 
 // 1 is Diamond 1, 50 is bronze 10

@@ -25,6 +25,7 @@ export interface SqsInput {
 	readonly playerDeckName: string;
 	readonly additionalResult: string;
 	readonly replayKey: string;
+	readonly metadataKey: string;
 	readonly application: string;
 	readonly appVersion: string;
 	readonly archetype: string;

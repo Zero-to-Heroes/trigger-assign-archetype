@@ -6,13 +6,33 @@ export const handleArchetypeMessage = async (
 	message: SqsInput,
 	mysql: serverlessMysql.ServerlessMysql,
 ): Promise<void> => {
+	const start = Date.now();
+	console.debug(
+		'processing message',
+		message.reviewId,
+		message.userId,
+		message.metadataKey,
+		message.playerRank,
+		message.playerDecklist,
+		message.replayKey,
+	);
 	const isValid = isMessageValid(message);
 	if (!isValid) {
 		return;
 	}
 
 	const archetypeId = await insertArchetype(mysql, message.archetype);
-	await addConstructedMatchStat(mysql, message, archetypeId);
+	const metadata = await addConstructedMatchStat(mysql, message, archetypeId);
+	if (metadata != null || message.userId === 'OW_e9585b6b-4468-4455-9768-9fe91b05faed') {
+		console.debug(
+			'process took',
+			Date.now() - start,
+			'ms',
+			'with analysis from metadata?',
+			!!metadata?.stats?.matchAnalysis,
+			message.reviewId,
+		);
+	}
 };
 
 const isMessageValid = (message: SqsInput): boolean => {
