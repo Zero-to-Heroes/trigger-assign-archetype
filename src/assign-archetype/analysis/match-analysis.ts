@@ -1,5 +1,6 @@
 import { decode } from '@firestone-hs/deckstrings';
 import { Replay, parseHsReplayString } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import { getBaseCardId } from '@firestone-hs/reference-data';
 import { CardAnalysis, MatchAnalysis } from 'src/model';
 import { allCards, s3 } from '../process-assign-archetype';
 import { SqsInput } from '../sqs-input';
@@ -19,18 +20,21 @@ export const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis =
 	let cardsBeforeMulligan: string[] = [];
 	parser.on('cards-in-hand', (event) => {
 		if (cardsBeforeMulligan?.length === 0) {
-			cardsBeforeMulligan = event.cardsInHand;
+			cardsBeforeMulligan = event.cardsInHand.map((cardId) => getBaseCardId(cardId));
 		} else {
-			cardsAfterMulligan = event.cardsInHand.map((cardId) => ({
-				cardId: cardId,
-				kept: cardsBeforeMulligan.includes(cardId),
-			}));
+			cardsAfterMulligan = event.cardsInHand.map((cardId) => {
+				const baseCardId = getBaseCardId(cardId);
+				return {
+					cardId: baseCardId,
+					kept: cardsBeforeMulligan.includes(baseCardId),
+				};
+			});
 		}
 	});
 	let cardsDrawn: { cardId: string; turn: number }[] = [];
 	parser.on('card-draw', (event) => {
 		// console.debug('card drawn', event.cardId);
-		cardsDrawn = [...cardsDrawn, { cardId: event.cardId, turn: event.turn }];
+		cardsDrawn = [...cardsDrawn, { cardId: getBaseCardId(event.cardId), turn: event.turn }];
 	});
 	parser.parse();
 
