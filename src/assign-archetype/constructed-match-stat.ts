@@ -48,6 +48,7 @@ export const addConstructedMatchStat = async (
 	const playerRank = isLegend
 		? parseInt(message.playerRank.split('legend-')[1])
 		: buildNumericalRankValue(message.playerRank);
+	// console.debug('trying to insert rank', playerRank, message.playerRank, message);
 	const result = await mysql.query(insertQuery, [
 		message.creationDate,
 		message.buildNumber,
@@ -88,5 +89,8 @@ export const addConstructedMatchStat = async (
 // 1 is Diamond 1, 50 is bronze 10
 const buildNumericalRankValue = (rank: string): number => {
 	const [league, position] = rank.split('-');
+	if (isNaN(parseInt(league)) || isNaN(parseInt(position))) {
+		return null;
+	}
 	return 10 * (parseInt(league) - 1) + parseInt(position);
 };
