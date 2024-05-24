@@ -1,4 +1,3 @@
-import { normalizeDeckList } from '@firestone-hs/reference-data';
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import serverlessMysql from 'serverless-mysql';
 import { MatchAnalysis } from '../model';
@@ -20,7 +19,7 @@ export const addConstructedMatchStat = async (
 		console.error('Could not build match analysis', e);
 	}
 	const normalizedDecklist =
-		metadata?.game?.normalizedDeckstring ?? normalizeDeckList(message.playerDecklist, allCards);
+		metadata?.game?.normalizedDeckstring ?? allCards.normalizeDeckList(message.playerDecklist);
 	const insertQuery = `
 		INSERT IGNORE INTO constructed_match_stats
 		(
