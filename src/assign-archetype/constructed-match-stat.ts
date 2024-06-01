@@ -38,10 +38,12 @@ export const addConstructedMatchStat = async (
 			opponentDecklist,
 			durationTurns,
 			durationSeconds,
-            matchAnalysis
+            matchAnalysis,
+			playerHeroCardId,
+			opponentHeroCardId
 		)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`;
 	const isLegend = message.playerRank?.includes('legend');
 	const playerRank = isLegend
@@ -65,6 +67,8 @@ export const addConstructedMatchStat = async (
 		null,
 		null,
 		JSON.stringify(matchAnalysis),
+		message.playerCardId,
+		message.opponentCardId,
 	]);
 	// console.debug('running query', result, insertQuery, message.creationDate, message.reviewId);
 
