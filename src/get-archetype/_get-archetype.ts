@@ -18,5 +18,12 @@ export default async (event, context): Promise<any> => {
 	console.debug('result', result);
 	const archetypeId = result?.[0]?.archetypeId;
 	await mysql.end();
-	return { statusCode: 200, body: archetypeId };
+	return {
+		statusCode: 200,
+		headers: {
+			'Cache-Control': 'public, max-age=7200', // Cache for 1 hour
+			'Content-Type': 'application/json',
+		},
+		body: archetypeId,
+	};
 };
