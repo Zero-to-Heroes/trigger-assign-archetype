@@ -2,20 +2,13 @@ import serverlessMysql from 'serverless-mysql';
 import { addConstructedMatchStat } from './constructed-match-stat';
 import { SqsInput } from './sqs-input';
 
+const knownArchetypesCache: { [archetype: string]: number } = {};
+
 export const handleArchetypeMessage = async (
 	message: SqsInput,
 	mysql: serverlessMysql.ServerlessMysql,
 ): Promise<void> => {
 	const start = Date.now();
-	console.debug(
-		'processing message',
-		message.reviewId,
-		message.userId,
-		message.metadataKey,
-		message.playerRank,
-		message.playerDecklist,
-		message.replayKey,
-	);
 	const isValid = isMessageValid(message);
 	if (!isValid) {
 		return;
@@ -40,6 +33,10 @@ const isMessageValid = (message: SqsInput): boolean => {
 };
 
 const insertArchetype = async (mysql: serverlessMysql.ServerlessMysql, archetypeName: string): Promise<number> => {
+	if (knownArchetypesCache[archetypeName]) {
+		return knownArchetypesCache[archetypeName];
+	}
+
 	archetypeName = slugify(archetypeName);
 	const selectQuery = `
         SELECT id FROM constructed_archetypes WHERE archetype = ?
@@ -57,6 +54,7 @@ const insertArchetype = async (mysql: serverlessMysql.ServerlessMysql, archetype
 	const result: any = await mysql.query(insertQuery, [archetypeName, archetypeName]);
 	// console.debug('inserted archetype', archetypeName, result.insertId);
 	if (result.insertId > 0) {
+		knownArchetypesCache[archetypeName] = result.insertId;
 		return result.insertId;
 	}
 

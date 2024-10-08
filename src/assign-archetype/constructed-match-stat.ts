@@ -1,9 +1,11 @@
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import serverlessMysql from 'serverless-mysql';
 import { MatchAnalysis } from '../model';
-import { buildMatchAnalysis, loadMetaDataFile } from './analysis/match-analysis';
+import { loadMetaDataFile } from './analysis/match-analysis';
 import { allCards } from './process-assign-archetype';
 import { SqsInput } from './sqs-input';
+
+const deckstringArchetypeCache: { [deckstring: string]: number } = {};
 
 export const addConstructedMatchStat = async (
 	mysql: serverlessMysql.ServerlessMysql,
@@ -12,12 +14,16 @@ export const addConstructedMatchStat = async (
 ): Promise<ReplayUploadMetadata> => {
 	const metadata = await loadMetaDataFile(message.metadataKey);
 
-	let matchAnalysis: MatchAnalysis = null;
-	try {
-		matchAnalysis = await buildMatchAnalysis(message, metadata);
-	} catch (e) {
-		console.error('Could not build match analysis', e);
+	const matchAnalysis: MatchAnalysis = metadata?.stats?.matchAnalysis;
+	if (!matchAnalysis) {
+		return metadata;
 	}
+
+	// try {
+	// 	matchAnalysis = await buildMatchAnalysis(message, metadata);
+	// } catch (e) {
+	// 	console.error('Could not build match analysis', e);
+	// }
 	const normalizedDecklist =
 		metadata?.game?.normalizedDeckstring ?? allCards.normalizeDeckList(message.playerDecklist);
 	const insertQuery = `
@@ -72,7 +78,8 @@ export const addConstructedMatchStat = async (
 	]);
 	// console.debug('running query', result, insertQuery, message.creationDate, message.reviewId);
 
-	if (archetypeId > 0) {
+	const decklistForArchetypes = normalizedDecklist.replaceAll('/', '-');
+	if (archetypeId > 0 && !deckstringArchetypeCache[decklistForArchetypes]) {
 		// Also add a decklist/archetype mapping
 		const deckArchetypeQuery = `
 			INSERT IGNORE INTO constructed_deck_archetype
@@ -83,7 +90,8 @@ export const addConstructedMatchStat = async (
 			VALUES
 			(?, ?)
 		`;
-		await mysql.query(deckArchetypeQuery, [normalizedDecklist.replaceAll('/', '-'), archetypeId]);
+		await mysql.query(deckArchetypeQuery, [decklistForArchetypes, archetypeId]);
+		deckstringArchetypeCache[decklistForArchetypes] = archetypeId;
 	}
 
 	return metadata;
