@@ -64,7 +64,7 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !GetAtt AssignArchetypeQueue.Arn
-                        BatchSize: 1
+                        BatchSize: 10
     GetArchetypeForDeck:
         Type: AWS::Serverless::Function
         Properties:

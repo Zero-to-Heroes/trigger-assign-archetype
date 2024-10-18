@@ -9,11 +9,6 @@ export const handleArchetypeMessage = async (
 	mysql: serverlessMysql.ServerlessMysql,
 ): Promise<void> => {
 	const start = Date.now();
-	const isValid = isMessageValid(message);
-	if (!isValid) {
-		return;
-	}
-
 	const archetypeId = await insertArchetype(mysql, message.archetype);
 	const metadata = await addConstructedMatchStat(mysql, message, archetypeId);
 	if (metadata != null || message.userId === 'OW_e9585b6b-4468-4455-9768-9fe91b05faed') {
@@ -26,10 +21,6 @@ export const handleArchetypeMessage = async (
 			message.reviewId,
 		);
 	}
-};
-
-const isMessageValid = (message: SqsInput): boolean => {
-	return !!message.playerRank?.length && !!message.playerDecklist?.length && !!message.replayKey?.length;
 };
 
 const insertArchetype = async (mysql: serverlessMysql.ServerlessMysql, archetypeName: string): Promise<number> => {
